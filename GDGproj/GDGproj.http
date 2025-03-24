@@ -1,0 +1,6 @@
+@GDGproj_HostAddress = http://localhost:5138
+
+GET {{GDGproj_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
