@@ -16,43 +16,40 @@ namespace GDGproj.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
-        public AuthController(AppDbContext context , IConfiguration configuration)
+
+        public AuthController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
         }
-        //register
+
+        // Register
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(User user)
+        public async Task<ActionResult<User>> Register([FromBody] User user)
         {
-           if (_context.Users.Any(u=>u.Email == user.Email))
-            
+            if (_context.Users.Any(u => u.Email == user.Email))
                 return BadRequest("Email already exists");
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword((string)user.Password); // Hash the password
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return Ok(new { Message = "user registered succssfully." });
 
-
+            return Ok(new { Message = "User registered successfully." });
         }
-        //login
+
+        // Login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] User loginUser)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginUser.Email);
-            if (user == null)
-                return Unauthorized("Invalid Email");
-            if (!BCrypt.Net.BCrypt.Verify(loginUser.PasswordHash, user.PasswordHash))
-                return Unauthorized("Invalid Password");
-            var token  = GenerateJwtToken(user);
+            if (user == null || !BCrypt.Net.BCrypt.Verify((string)loginUser.Password, user.PasswordHash))
+                return Unauthorized("Invalid Email or Password");
+
+            var token = GenerateJwtToken(user);
             return Ok(new { Token = token });
-
-
-
-
-
         }
 
+        // Generates JWT Token
         private string GenerateJwtToken(User user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -75,11 +72,6 @@ namespace GDGproj.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public IActionResult Index()
-        {
-            return View();
         }
     }
 }
