@@ -1,5 +1,7 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace GDGproj.Models
 {
     public class User
@@ -11,6 +13,7 @@ namespace GDGproj.Models
         public string Role { get; set; } = "Regular";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public ICollection<Post> Posts { get; set; } = new List<Post>();
-        public object Password { get; internal set; }
+        [NotMapped]
+        public object? Password { get; internal set; }
     }
 }

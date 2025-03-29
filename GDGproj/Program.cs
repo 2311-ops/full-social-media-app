@@ -3,9 +3,14 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using GDGproj.Data;
+using GDGproj.Interfaces;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<IUserRelationRepository, UserRelationRepository>();
+builder.Services.AddScoped<IUserRelationService, UserRelationService>();
+builder.Services.AddScoped<ILikeRepository, LikeRepository>();  
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -19,7 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Configure Entity Framework Core with SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer("Server=DESKTOP-9I2RJ27;Database=AppDB;Trusted_Connection=True;TrustServerCertificate=True;");
+    options.UseSqlServer("DefaultConnection");
 });
 var jwtkey = builder.Configuration["Jwt:Key"];
 
@@ -42,6 +47,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+
 
 
 
